@@ -64,14 +64,15 @@ export default function TransactionTable({
         </select>
       </div>
 
-      <div className="panel">
+      <div className="panel table-panel">
         {visibleTransactions.length === 0 ? (
           <div className="empty-state">
             <h3>No transactions match these filters</h3>
             <p>Try a different type or warehouse.</p>
           </div>
         ) : (
-          <table>
+          <div className="table-scroll" tabIndex={0} aria-label="Transaction history table">
+            <table>
             <thead>
               <tr>
                 <th>Product</th>
@@ -92,7 +93,8 @@ export default function TransactionTable({
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
       </div>
     </>

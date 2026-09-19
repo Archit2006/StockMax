@@ -32,6 +32,7 @@ html {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 22px;
+  min-height: 20px;
 }
 
 .back-link {
@@ -219,10 +220,15 @@ h3 {
   color: var(--steel);
 }
 
+.sidebar-footer .sidebar-link {
+  display: inline-flex;
+}
+
 .main {
   flex: 1;
   min-width: 0;
-  padding: 36px 44px 60px;
+  padding: 36px clamp(24px, 4vw, 64px) 60px;
+  max-width: 1440px;
 }
 
 .page-header {
@@ -251,6 +257,24 @@ h3 {
   border-radius: var(--radius-md);
 }
 
+.table-panel {
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: -2px;
+}
+
+.table-scroll table {
+  min-width: 700px;
+}
+
 /* Filters bar */
 .filter-bar {
   display: flex;
@@ -275,6 +299,7 @@ input[type='number'] {
   border-radius: var(--radius-sm);
   background: var(--white);
   color: var(--ink);
+  min-height: 42px;
 }
 
 select:focus,
@@ -292,6 +317,7 @@ input:focus {
   background: var(--white);
   cursor: pointer;
   user-select: none;
+  min-height: 42px;
 }
 
 /* Table */
@@ -412,6 +438,7 @@ tbody tr:last-child td {
   border: 1px solid transparent;
   cursor: pointer;
   text-decoration: none;
+  min-height: 42px;
   transition:
     transform 0.08s ease,
     background 0.15s ease,
@@ -523,7 +550,7 @@ tbody tr:last-child td {
 }
 
 .login-card {
-  width: 360px;
+  width: min(360px, calc(100% - 32px));
   padding: 32px;
   background: var(--white);
 }
@@ -536,14 +563,22 @@ tbody tr:last-child td {
     width: auto;
     flex-direction: row;
     align-items: center;
-    padding: 14px 18px;
+    padding: 12px 16px;
     overflow-x: auto;
+    scrollbar-width: none;
   }
+
+  .sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
   .sidebar-brand {
     margin-bottom: 0;
+    margin-right: 8px;
   }
   .sidebar-nav {
     flex-direction: row;
+    flex-shrink: 0;
   }
   .sidebar-footer {
     display: none;
@@ -553,6 +588,159 @@ tbody tr:last-child td {
   }
   .summary-strip {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .sidebar-brand-text span {
+    display: none;
+  }
+
+  .sidebar-brand-text {
+    font-size: 15px;
+  }
+
+  .sidebar-link {
+    white-space: nowrap;
+    padding: 10px;
+  }
+
+  .sidebar-link-icon {
+    width: 18px;
+  }
+
+  .sidebar-link-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .main {
+    padding: 20px 14px 32px;
+  }
+
+  .topbar {
+    margin-bottom: 18px;
+  }
+
+  .page-header {
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 8px;
+  }
+
+  .page-header h1 {
+    font-size: 26px;
+    line-height: 1.15;
+  }
+
+  .page-header p {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .summary-strip {
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .summary-tile {
+    padding: 13px 14px;
+  }
+
+  .summary-tile .value {
+    font-size: 22px;
+  }
+
+  .summary-tile .label {
+    font-size: 11.5px;
+    line-height: 1.3;
+  }
+
+  .filter-bar {
+    align-items: stretch;
+  }
+
+  .filter-bar select,
+  .filter-bar .checkbox-filter {
+    flex: 1 1 100%;
+  }
+
+  .form-panel {
+    padding: 20px 16px;
+  }
+
+  .forms-grid {
+    gap: 16px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+
+  .empty-state {
+    padding: 44px 16px;
+  }
+
+  .marketing-nav {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .marketing-nav .links {
+    margin-left: auto;
+  }
+
+  .marketing-nav > .btn {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
+  .hero-split {
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .hero-copy {
+    padding: 48px 24px 40px;
+  }
+
+  .hero-copy h1 {
+    font-size: 36px;
+  }
+
+  .hero-copy p {
+    line-height: 1.55;
+  }
+
+  .hero-copy .form-actions {
+    align-items: stretch;
+  }
+
+  .hero-visual {
+    min-height: 330px;
+  }
+
+  .floating-panel {
+    width: min(300px, calc(100% - 48px));
+  }
+
+  .floating-chip {
+    max-width: 190px;
+    line-height: 1.35;
+  }
+
+  .quick-links-section {
+    padding: 36px 20px 56px;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 

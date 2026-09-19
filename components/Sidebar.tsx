@@ -110,8 +110,8 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        Signed in as <strong>Jordan Ruiz</strong>
-        <br />
+        <span className="signed-in-label">Signed in as</span>{' '}
+        <strong>Jordan Ruiz</strong>
         <Link
           href="/login"
           className="sidebar-link"

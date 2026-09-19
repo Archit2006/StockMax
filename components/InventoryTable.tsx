@@ -82,14 +82,15 @@ export default function InventoryTable({
         </label>
       </div>
 
-      <div className="panel">
+      <div className="panel table-panel">
         {visibleProducts.length === 0 ? (
           <div className="empty-state">
             <h3>No products match these filters</h3>
             <p>Try a different category or clear the low stock filter.</p>
           </div>
         ) : (
-          <table>
+          <div className="table-scroll" tabIndex={0} aria-label="Inventory table">
+            <table>
             <thead>
               <tr>
                 <th>Product</th>
@@ -120,7 +121,8 @@ export default function InventoryTable({
                 )
               })}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
       </div>
     </>
