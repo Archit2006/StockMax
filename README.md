@@ -1,111 +1,190 @@
-# StockLite — Warehouse Inventory System
+# StockLite - Warehouse Inventory System
 
-StockLite is a small warehouse inventory app. It tracks products across two
-warehouses, lets staff record stock movements, and keeps a history of every
-transaction. This repo gives you the UI, seed data, and basic app structure —
-your job is to make it actually work.
+StockLite is a small warehouse inventory app that tracks products across two warehouses, lets staff record stock movements, and keeps a history of every transaction. This starter project provides the UI, seed data, and basic app structure. Your job is to make it actually work.
 
-## What's already provided
+## Overview
 
-- Styled inventory grid UI (`/`)
-- Stock In / Stock Out form UI (`/stock`)
-- Warehouse Transfer form UI (`/transfer`)
-- Transaction History page UI (`/history`)
-- A seeded in-memory store with ~20 products across 2 warehouses
-  (`lib/seed-data.ts`), including products above, near, and at their
-  reorder threshold
-- A staff auth skeleton (`/login`, `lib/auth.ts`) — not real authentication,
-  just the expected shape
-- Stubbed API routes: `GET /api/items`, `GET /api/transactions`
+StockLite is a starter project for a warehouse inventory system. It is designed to help staff:
 
-None of the actual inventory logic — filtering, validation, stock mutation,
-transfers, or transaction recording — is implemented yet. Every place you
-need to add logic is marked with a `TODO` comment.
+- View products and their stock levels across two warehouses
+- Record stock coming in and going out
+- Transfer stock between warehouses
+- Review a history of every transaction
 
-## Project structure
+The UI, seed data, and app structure are already in place, but none of the actual inventory logic is implemented. Participants are expected to build the logic that makes the application work.
 
+## What Has Already Been Built
+
+The starter project already includes the following functionality. Participants should build the remaining functionality described in the tasks below.
+
+- **Inventory grid UI** (`/`): a styled inventory grid
+- **Stock In / Stock Out form UI** (`/stock`)
+- **Warehouse Transfer form UI** (`/transfer`)
+- **Transaction History page UI** (`/history`)
+- **Seed data** (`lib/seed-data.ts`): a seeded in-memory store with ~20 products across 2 warehouses, including products above, near, and at their reorder threshold
+- **Auth skeleton** (`/login`, `lib/auth.ts`): not real authentication, just the expected shape
+- **Stubbed API routes**: `GET /api/items` and `GET /api/transactions`, which return the seeded data as-is
+- **UI components** (`components/`): table, forms, status badge, and navigation
+- **Shared types** (`lib/types.ts`)
+
+## Features
+
+### Existing Features
+
+- Inventory, Stock In / Stock Out, Warehouse Transfer, and Transaction History pages with styled UI
+- Seeded products, warehouses, and transactions in an in-memory store
+- Staff login skeleton
+- Stubbed read-only API routes for items and transactions
+
+### Features to Be Implemented
+
+- Inventory view with category and low stock filtering
+- Stock In and Stock Out with validation and transaction logging
+- Warehouse transfers between the two warehouses
+- Transaction history with filtering and sorting
+- Bug fixes for stock totals, negative inventory, transfers, and low stock status
+- _(Stretch)_ Low stock summary panel per warehouse
+
+None of the inventory logic (filtering, validation, stock mutation, transfers, or transaction recording) is implemented yet.
+
+## Tech Stack
+
+- **Language:** TypeScript
+- **Framework:** Next.js (App Router)
+- **UI:** React components
+- **Data storage:** Seeded in-memory store (`lib/seed-data.ts`)
+- **Package manager:** npm
+
+## Getting Started
+
+### 1. Fork the Repository
+
+Fork this repository to your own GitHub account using the **Fork** button at the top of the repository page.
+
+### 2. Clone the Repository
+
+Clone your fork to your local machine:
+
+```bash
+git clone <your-forked-repository-url>
 ```
-app/
-  page.tsx              Inventory View
-  stock/page.tsx         Stock In / Stock Out
-  transfer/page.tsx      Warehouse Transfer
-  history/page.tsx       Transaction History
-  login/page.tsx         Auth skeleton
-  api/items/route.ts     Stubbed items API
-  api/transactions/route.ts   Stubbed transactions API
-components/               UI components (table, forms, status badge, nav)
-lib/
-  seed-data.ts            Seeded products, warehouses, transactions
-  types.ts                Shared types
-  auth.ts                 Stubbed staff user
-```
 
-## Running the project
+### 3. Install Dependencies
 
 ```bash
 npm install
+```
+
+### 4. Run the Application
+
+```bash
 npm run dev
 ```
 
-Then open http://localhost:3000.
+Then open [http://localhost:3000](http://localhost:3000).
 
-## What you need to implement
+## Project Structure
 
-The seed data and API stubs currently live in memory (`lib/seed-data.ts`).
-You can mutate that in-memory data directly from the API routes, or wire up
-whatever storage approach you prefer — just make the behavior below correct.
+```text
+app/
+├── page.tsx                    # Inventory View
+├── stock/page.tsx              # Stock In / Stock Out
+├── transfer/page.tsx           # Warehouse Transfer
+├── history/page.tsx            # Transaction History
+├── login/page.tsx              # Auth skeleton
+└── api/
+    ├── items/route.ts          # Stubbed items API
+    └── transactions/route.ts   # Stubbed transactions API
+components/                     # UI components (table, forms, status badge, nav)
+lib/
+├── seed-data.ts                # Seeded products, warehouses, transactions
+├── types.ts                    # Shared types
+└── auth.ts                     # Stubbed staff user
+```
 
-### Task 1: Inventory View — 15 points
+## What Participants Need to Build
 
-- Display name, category, warehouse, current stock, and reorder threshold — 3 pts
-- Filter by category — 3 pts
-- Filter by low stock only — 3 pts
-- Correct low stock rule: current stock ≤ threshold — 3 pts
-- Category and low stock filters combine correctly — 2 pts
-- Graceful empty state handling — 1 pt
+The starter project intentionally contains gaps. The seed data and API stubs currently live in memory (`lib/seed-data.ts`). You can mutate that in-memory data directly from the API routes, or wire up whatever storage approach you prefer, as long as the behavior described below is correct.
 
-### Task 2: Stock In and Stock Out — 25 points
+To find the unfinished areas, look for:
 
-- Stock in form and API increments the correct warehouse — 5 pts
-- Stock out form and API decrements the correct warehouse — 5 pts
-- Block a stock out that would exceed current stock — 5 pts
-- Reject invalid quantities (zero, negative, non-numeric) — 4 pts
-- UI reflects the new stock level immediately — 3 pts
-- Operation is logged for transaction history — 3 pts
+- `TODO` comments, which mark every place where you need to add logic
+- API stubs that only return the seeded data and do not support writes
 
-### Task 3: Warehouse Transfer — 25 points
+## Participant Tasks
 
-- Transfer form with product, source warehouse, destination warehouse, quantity — 4 pts
-- Deduct quantity from the source warehouse — 4 pts
-- Add quantity to the destination warehouse — 4 pts
-- Reject a transfer if the source has insufficient stock — 5 pts
-- Validate both warehouses before writing, so no partial transfer applies on failure — 6 pts
-- Transfer is recorded as a linked pair in the transaction history — 2 pts
+### Task 1 — Inventory View
 
-### Task 4: Transaction History — 15 points
+- Display name, category, warehouse, current stock, and reorder threshold
+- Filter by category
+- Filter by low stock only
+- Apply the correct low stock rule: current stock ≤ threshold
+- Ensure the category and low stock filters combine correctly
+- Handle the empty state gracefully
 
-- List transactions with product, warehouse, type, quantity, and timestamp — 4 pts
-- Filter by transaction type — 3 pts
-- Filter by warehouse — 3 pts
-- Sort by most recent timestamp — 3 pts
-- Filters combine correctly — 2 pts
+### Task 2 — Stock In and Stock Out
 
-### Task 5: Debugging — 15 points
+- Make the stock in form and API increment the correct warehouse
+- Make the stock out form and API decrement the correct warehouse
+- Block a stock out that would exceed current stock
+- Reject invalid quantities (zero, negative, non-numeric)
+- Ensure the UI reflects the new stock level immediately
+- Log the operation for transaction history
 
-- Fix incorrect stock totals after operations — 4 pts
-- Fix negative inventory being allowed — 4 pts
-- Fix a transfer that only updates one warehouse — 4 pts
-- Fix incorrect low stock status logic — 3 pts
+### Task 3 — Warehouse Transfer
 
-### Stretch — 5 points
+- Provide a transfer form with product, source warehouse, destination warehouse, and quantity
+- Deduct the quantity from the source warehouse
+- Add the quantity to the destination warehouse
+- Reject a transfer if the source has insufficient stock
+- Validate both warehouses before writing, so no partial transfer applies on failure
+- Record the transfer as a linked pair in the transaction history
 
-- Low stock summary panel showing counts needing replenishment per warehouse — 5 pts
+### Task 4 — Transaction History
 
-**Total: 100 points**
+- List transactions with product, warehouse, type, quantity, and timestamp
+- Filter by transaction type
+- Filter by warehouse
+- Sort by most recent timestamp
+- Ensure the filters combine correctly
 
-## Notes
+## Debugging Tasks
 
-- Keep your changes focused — you shouldn't need to restructure the provided
-  pages or components, just fill in the logic.
-- The API stubs return the seeded data as-is. You'll need to extend them
-  (or add new handlers) to support writes.
+### Task 5 — Debugging
+
+Fix the following issues:
+
+- Incorrect stock totals after operations
+- Negative inventory being allowed
+- A transfer that only updates one warehouse
+- Incorrect low stock status logic
+
+- **Low stock summary panel:** show counts of products needing replenishment per warehouse
+
+## Expected Behavior
+
+- **Inventory view:** shows name, category, warehouse, current stock, and reorder threshold. A product is low stock when current stock ≤ reorder threshold. Category and low stock filters work together, and an empty result is handled gracefully.
+- **Stock in:** increments stock in the correct warehouse and logs the operation for transaction history.
+- **Stock out:** decrements stock in the correct warehouse and logs the operation. A stock out that would exceed current stock is blocked, so inventory never goes negative.
+- **Validation:** quantities that are zero, negative, or non-numeric are rejected.
+- **UI updates:** the UI reflects the new stock level immediately after an operation.
+- **Transfers:** the quantity is deducted from the source warehouse and added to the destination warehouse. A transfer is rejected if the source has insufficient stock. Both warehouses are validated before any write, so a failed transfer leaves no partial changes. Each transfer is recorded as a linked pair in the transaction history.
+- **Transaction history:** lists product, warehouse, type, quantity, and timestamp, sorted by most recent timestamp. Filters by type and warehouse combine correctly.
+
+## How to Approach the Project
+
+1. Run the application with `npm run dev` and open [http://localhost:3000](http://localhost:3000).
+2. Explore the existing pages: Inventory (`/`), Stock (`/stock`), Transfer (`/transfer`), History (`/history`), and Login (`/login`).
+3. Search the codebase for `TODO` comments to find the unfinished areas.
+4. Inspect the relevant files, such as the page files, the API routes, `lib/seed-data.ts`, and `lib/types.ts`.
+5. Implement the required tasks.
+6. Test each feature as you build it.
+7. Verify edge cases such as invalid quantities, insufficient stock, empty filter results, and failed transfers.
+
+## Important Notes and Constraints
+
+- Keep your changes focused. You should not need to restructure the provided pages or components; just fill in the logic.
+- The API stubs return the seeded data as-is. You will need to extend them (or add new handlers) to support writes.
+- The seed data and API stubs live in memory (`lib/seed-data.ts`). You may mutate this data directly from the API routes or use another storage approach of your choice.
+- The staff auth skeleton (`/login`, `lib/auth.ts`) is not real authentication, just the expected shape.
+- The seed data includes products above, near, and at their reorder threshold, which is useful for checking low stock behavior.
