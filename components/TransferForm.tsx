@@ -40,34 +40,20 @@ export default function TransferForm({
 
   const selectedProduct = products.find((p) => p.id === productId)
 
+  // TASK 3: This currently sends the transfer request with no validation at
+  // all, and doesn't update the UI afterward. Add checks before calling the
+  // API:
+  //   - source and destination warehouses must be different
+  //   - a product must be selected
+  //   - quantity must be a positive number and <= selectedProduct.currentStock
+  // Then, after a successful response, update `products` state using
+  // data.source and data.destination (add the destination row if it's new).
   async function handleTransfer(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     setSuccess('')
 
-    if (!sourceWarehouseId || !destWarehouseId) {
-      setError('Choose both a source and destination warehouse.')
-      return
-    }
-    if (sourceWarehouseId === destWarehouseId) {
-      setError('Source and destination warehouses must be different.')
-      return
-    }
-    if (!selectedProduct) {
-      setError('Choose a product to transfer.')
-      return
-    }
     const parsedQuantity = Number(quantity)
-    if (!quantity || !Number.isFinite(parsedQuantity) || parsedQuantity <= 0) {
-      setError('Enter a quantity greater than 0.')
-      return
-    }
-    if (parsedQuantity > selectedProduct.currentStock) {
-      setError(
-        `Only ${selectedProduct.currentStock} in stock at the source warehouse.`,
-      )
-      return
-    }
 
     setSubmitting(true)
     try {
@@ -86,17 +72,9 @@ export default function TransferForm({
         setError(data.error ?? 'Something went wrong.')
         return
       }
-      setProducts((prev) => {
-        const next = prev.map((p) =>
-          p.id === data.source.id ? data.source : p,
-        )
-        const hasDest = next.some((p) => p.id === data.destination.id)
-        return hasDest
-          ? next.map((p) =>
-              p.id === data.destination.id ? data.destination : p,
-            )
-          : [...next, data.destination]
-      })
+
+      // TODO: update `products` state with data.source and data.destination
+
       setSuccess(
         `Transferred ${parsedQuantity} unit${parsedQuantity === 1 ? '' : 's'} of ${data.source.name} to the destination warehouse.`,
       )
