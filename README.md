@@ -188,3 +188,11 @@ Fix the following issues:
 - The seed data and API stubs live in memory (`lib/seed-data.ts`). You may mutate this data directly from the API routes or use another storage approach of your choice.
 - The staff auth skeleton (`/login`, `lib/auth.ts`) is not real authentication, just the expected shape.
 - The seed data includes products above, near, and at their reorder threshold, which is useful for checking low stock behavior.
+
+## Links
+
+- How to clone and fork this GitHub repository:
+- https://drive.google.com/file/d/1jRpIMKBL0hOPOiQ0Han6IWJON1bLjoxU/view?usp=sharing
+
+- Directly download zip file of this GitHub repository:
+- https://drive.google.com/file/d/18WZzxo6lle9gS78lQYL_VvpP3ENjW32n/view?usp=sharing
