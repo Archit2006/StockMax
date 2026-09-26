@@ -1,4 +1,5 @@
 import { Product, Transaction, TransactionType, Warehouse } from './types'
+import { stockLiteStore } from './store'
 
 export const warehouses: Warehouse[] = [
   {
@@ -9,7 +10,7 @@ export const warehouses: Warehouse[] = [
   { id: 'wh-south', name: 'South Fulfillment Hub', location: 'Waco, TX' },
 ]
 
-export const products: Product[] = [
+const initialProducts: Product[] = [
   {
     id: 'p-001',
     name: 'Corrugated Shipping Box (M)',
@@ -173,7 +174,7 @@ export const products: Product[] = [
 ]
 
 // A few sample transactions so the History page isn't empty on first load.
-export const transactions: Transaction[] = [
+const initialTransactions: Transaction[] = [
   {
     id: 't-001',
     productId: 'p-002',
@@ -217,8 +218,17 @@ export const transactions: Transaction[] = [
     linkedTransactionId: 't-003',
   },
 ]
+if (stockLiteStore.products.length === 0) {
+  stockLiteStore.products.push(...initialProducts)
+}
 
-let nextTransactionSeq = transactions.length + 1
+if (stockLiteStore.transactions.length === 0) {
+  stockLiteStore.transactions.push(...initialTransactions)
+}
+
+export const products = stockLiteStore.products
+export const transactions = stockLiteStore.transactions
+
 
 function warehouseName(id: string) {
   return warehouses.find((w) => w.id === id)?.name ?? id
@@ -237,7 +247,7 @@ export function recordTransaction(input: {
   linkedTransactionId?: string
 }): Transaction {
   const tx: Transaction = {
-    id: `t-${String(nextTransactionSeq++).padStart(3, '0')}`,
+    id: `t-${String(stockLiteStore.nextTransactionSeq++).padStart(3, '0')}`,
     productId: input.productId,
     productName: input.productName,
     warehouseId: input.warehouseId,
@@ -271,14 +281,38 @@ export function applyStockMovement(
   direction: 'IN' | 'OUT',
 ): Product {
   const product = findProduct(productId)
-  if (!product) throw new Error('Product not found')
 
-  // TODO: validate quantity (reject <= 0, NaN, etc.)
-  // TODO: for OUT, block if quantity > product.currentStock
+  if (!product) {
+    throw new Error('Product not found')
+  }
 
-  product.currentStock += direction === 'IN' ? quantity : -quantity
+  // Validate quantity
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    throw new Error('Quantity must be a positive number')
+  }
 
-  // TODO: recordTransaction({ ... })
+  // Prevent stock from becoming negative
+  if (direction === 'OUT' && quantity > product.currentStock) {
+    throw new Error(
+      `Only ${product.currentStock} units in stock — cannot stock out more than that.`,
+    )
+  }
+
+  // Update stock
+  if (direction === 'IN') {
+    product.currentStock += quantity
+  } else {
+    product.currentStock -= quantity
+  }
+
+  // Record transaction
+  recordTransaction({
+    productId: product.id,
+    productName: product.name,
+    warehouseId: product.warehouseId,
+    type: direction,
+    quantity,
+  })
 
   return product
 }
@@ -306,17 +340,97 @@ export function applyTransfer(
   destWarehouseId: string,
   quantity: number,
 ): { source: Product; destination: Product } {
+  // 1. Find the source product
   const source = findProduct(productId)
-  if (!source) throw new Error('Source product not found')
 
-  // TODO: validate destWarehouseId !== source.warehouseId
-  // TODO: validate quantity (positive, finite, <= source.currentStock)
+  if (!source) {
+    throw new Error('Source product not found')
+  }
 
+  // 2. Validate destination warehouse
+  const destinationWarehouse = warehouses.find(
+    (w) => w.id === destWarehouseId,
+  )
+
+  if (!destinationWarehouse) {
+    throw new Error('Destination warehouse not found')
+  }
+
+  // 3. Source and destination must be different
+  if (source.warehouseId === destWarehouseId) {
+    throw new Error('Source and destination warehouses must be different')
+  }
+
+  // 4. Validate quantity
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    throw new Error('Quantity must be a positive number')
+  }
+
+  // 5. Prevent negative stock
+  if (quantity > source.currentStock) {
+    throw new Error(
+      `Only ${source.currentStock} units in stock — cannot transfer more than that.`,
+    )
+  }
+
+  // 6. Find the same product at the destination warehouse
+  let destination = products.find(
+    (p) =>
+      p.warehouseId === destWarehouseId &&
+      p.name === source.name &&
+      p.category === source.category,
+  )
+
+  // 7. Create destination product if it doesn't exist
+  if (!destination) {
+    const nextProductNumber =
+      Math.max(
+        ...products.map((p) => {
+          const number = Number(p.id.replace('p-', ''))
+          return Number.isFinite(number) ? number : 0
+        }),
+      ) + 1
+
+    destination = {
+      id: `p-${String(nextProductNumber).padStart(3, '0')}`,
+      name: source.name,
+      category: source.category,
+      warehouseId: destWarehouseId,
+      currentStock: 0,
+      reorderThreshold: source.reorderThreshold,
+    }
+
+    products.push(destination)
+  }
+
+  // 8. Apply the actual stock movement
   source.currentStock -= quantity
+  destination.currentStock += quantity
 
-  // BUG: destination is never found/created/incremented.
-  // TODO: find or create the destination product row, then add quantity to it
-  // TODO: record linked TRANSFER_OUT / TRANSFER_IN transactions
+  // 9. Create TRANSFER_OUT transaction
+  const transferOut = recordTransaction({
+    productId: source.id,
+    productName: source.name,
+    warehouseId: source.warehouseId,
+    type: 'TRANSFER_OUT',
+    quantity,
+  })
 
-  return { source, destination: source }
+  // 10. Create TRANSFER_IN transaction linked to TRANSFER_OUT
+  const transferIn = recordTransaction({
+    productId: destination.id,
+    productName: destination.name,
+    warehouseId: destination.warehouseId,
+    type: 'TRANSFER_IN',
+    quantity,
+    linkedTransactionId: transferOut.id,
+  })
+
+  // 11. Link TRANSFER_OUT back to TRANSFER_IN
+  transferOut.linkedTransactionId = transferIn.id
+
+  return {
+    source,
+    destination,
+  }
 }

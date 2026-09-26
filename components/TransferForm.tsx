@@ -49,42 +49,90 @@ export default function TransferForm({
   // Then, after a successful response, update `products` state using
   // data.source and data.destination (add the destination row if it's new).
   async function handleTransfer(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    setSuccess('')
+  e.preventDefault()
+  setError('')
+  setSuccess('')
 
-    const parsedQuantity = Number(quantity)
+  const parsedQuantity = Number(quantity)
 
-    setSubmitting(true)
-    try {
-      const res = await fetch('/api/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'transfer',
-          productId,
-          destWarehouseId,
-          quantity: parsedQuantity,
-        }),
+  if (sourceWarehouseId === destWarehouseId) {
+    setError('Source and destination warehouses must be different.')
+    return
+  }
+
+  if (!productId || !selectedProduct) {
+    setError('Please select a product.')
+    return
+  }
+
+  if (!Number.isFinite(parsedQuantity) || parsedQuantity <= 0) {
+    setError('Enter a quantity greater than 0.')
+    return
+  }
+
+  if (parsedQuantity > selectedProduct.currentStock) {
+    setError(
+      `Only ${selectedProduct.currentStock} units in stock — cannot transfer more than that.`,
+    )
+    return
+  }
+
+  setSubmitting(true)
+
+  try {
+    const res = await fetch('/api/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'transfer',
+        productId,
+        destWarehouseId,
+        quantity: parsedQuantity,
+      }),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      setError(data.error ?? 'Something went wrong.')
+      return
+    }
+
+    setProducts((prev) => {
+      const updated = prev.map((p) => {
+        if (p.id === data.source.id) {
+          return data.source
+        }
+
+        if (p.id === data.destination.id) {
+          return data.destination
+        }
+
+        return p
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error ?? 'Something went wrong.')
-        return
+
+      const destinationExists = prev.some(
+        (p) => p.id === data.destination.id,
+      )
+
+      if (!destinationExists) {
+        updated.push(data.destination)
       }
 
-      // TODO: update `products` state with data.source and data.destination
+      return updated
+    })
 
-      setSuccess(
-        `Transferred ${parsedQuantity} unit${parsedQuantity === 1 ? '' : 's'} of ${data.source.name} to the destination warehouse.`,
-      )
-      setQuantity('')
-    } catch {
-      setError('Could not reach the server. Please try again.')
-    } finally {
-      setSubmitting(false)
-    }
+    setSuccess(
+      `Transferred ${parsedQuantity} unit${parsedQuantity === 1 ? '' : 's'} of ${data.source.name} to the destination warehouse.`,
+    )
+
+    setQuantity('')
+  } catch {
+    setError('Could not reach the server. Please try again.')
+  } finally {
+    setSubmitting(false)
   }
+}
 
   return (
     <div className="panel form-panel">
